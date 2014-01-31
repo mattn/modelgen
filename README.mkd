@@ -1,0 +1,32 @@
+modelgen
+========
+
+Description
+-----------
+
+command for generating DB entities for golang
+
+Installation
+------------
+
+This package can be installed with the go get command:
+
+    go get github.com/mattn/modelgen
+    
+Usage
+-----
+
+    $ modelgen foo bar:string baz:string
+
+    type Foo struct {
+    	Id  int64  `db:"id"`
+    	Bar string `db:"bar"`
+    	Baz string `db:"baz"`
+    }
+
+License
+-------
+
+Yasuhiro Matsumoto
+
+MIT: http://mattn.mit-license.org/2014
