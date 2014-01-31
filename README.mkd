@@ -72,6 +72,42 @@ $ vi main.go
 $ go build main.go
 ```
 
+```
+$ modelgen -gorp -pkg=main blog title:string body:string  
+```
+
+```go
+package main
+
+import (
+	_ "github.com/mattn/go-sqlite3"
+	"database/sql"
+	"log"
+	"github.com/coopernurse/gorp"
+)
+
+type Blog struct {
+	Id    int64  `db:"id"`
+	Title string `db:"title"`
+	Body  string `db:"body"`
+}
+
+func main() {
+	conn, err := sql.Open("sqlite3", "...")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer conn.Close()
+
+	dbmap := &gorp.DbMap{Db: conn, Dialect: gorp.SqliteDialect{}}
+	dbmap.AddTableWithName(Blog{}, "blogs").SetKeys(true, "id")
+	err = dbmap.CreateTablesIfNotExists()
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+```
+
 License
 -------
 
