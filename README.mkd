@@ -25,6 +25,9 @@ Usage of modelgen:
 
 ```
 $ modelgen foo bar:string baz:time nothing_but_love:int
+```
+
+```go
 type Foo struct {
 	Id             int64     `db:"id"`
 	Bar            string    `db:"bar"`
@@ -35,6 +38,9 @@ type Foo struct {
 
 ```
 $ modelgen -pkg=main -dbi=sqlite3 foo bar:string baz:time nothing_but_love:int
+```
+
+```go
 package main
 
 import (
