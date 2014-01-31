@@ -16,8 +16,14 @@ import (
 const doNotEdit = "//-- DO_NOT_EDIT --\n"
 
 var pkg = flag.String("pkg", "", "Package Name")
-var dbi = flag.String("dbi", "github.com/mattn/go-sqlite3", "Database Driver")
+var dbi = flag.String("dbi", "sqlite3", "Database Driver (sqlite3/pq/mysql)")
 var tag = flag.String("tag", "db", "Database Tag")
+
+var dbiMap = map[string]string{
+	"sqlite3": "github.com/mattn/go-sqlite3",
+	"pq":      "github.com/lib/pq",
+	"mysql":   "github.com/go-sql-driver/mysql",
+}
 
 var typeMap = map[string]string{
 	"int":     "int64",
@@ -48,6 +54,10 @@ func main() {
 		flag.Usage()
 		os.Exit(1)
 	}
+	if _, ok := dbiMap[*dbi]; !ok {
+		flag.Usage()
+		os.Exit(1)
+	}
 	name := flag.Arg(0)
 
 	code := "type " + CamelCase(name) + " struct {\n"
@@ -67,11 +77,19 @@ func main() {
 	}
 	code += "}"
 
+	hasMain := false
 	p := "main"
 	if *pkg != "" {
 		p = *pkg
+		if p == "main" {
+			hasMain = true
+		}
 	}
-	out := "package " + p + "\n\nimport (\n\t_ \"" + *dbi + "\""
+	out := "package " + p + "\n\nimport (\n\t_ \"" + dbiMap[*dbi] + "\""
+	if hasMain {
+		out += "\n\t\"database/sql\""
+		out += "\n\t\"log\""
+	}
 	if hasTime {
 		out += "\n\t\"time\""
 	}
@@ -80,6 +98,16 @@ func main() {
 		out += doNotEdit
 	}
 	out += code
+
+	if hasMain {
+		out += "\n\nfunc main() {\n"
+		out += "\tconn, err := sql.Open(\"" + *dbi + "\", \"...\")\n"
+		out += "\tif err != nil {\n"
+		out += "\t\tlog.Fatal(err)\n"
+		out += "\t}\n"
+		out += "\tdefer conn.Close()\n"
+		out += "}\n"
+	}
 
 	var buf bytes.Buffer
 	fset := token.NewFileSet()
