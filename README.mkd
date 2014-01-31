@@ -25,15 +25,43 @@ Usage of modelgen:
 
 ```
 $ modelgen foo bar:string baz:time nothing_but_love:int
-```
-
-```go
 type Foo struct {
 	Id             int64     `db:"id"`
 	Bar            string    `db:"bar"`
 	Baz            time.Time `db:"baz"`
 	NothingButLove int64     `db:"nothing_but_love"`
 }
+
+$ modelgen -pkg=main -dbi=sqlite3 foo bar:string baz:time nothing_but_love:int
+package main
+
+import (
+	_ "github.com/mattn/go-sqlite3"
+	"database/sql"
+	"log"
+	"time"
+)
+
+type Foo struct {
+	Id             int64     `db:"id"`
+	Bar            string    `db:"bar"`
+	Baz            time.Time `db:"baz"`
+	NothingButLove int64     `db:"nothing_but_love"`
+}
+
+func main() {
+	conn, err := sql.Open("sqlite3", "...")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer conn.Close()
+}
+```
+
+```
+$ modelgen -pkg=main -dbi=sqlite3 foo bar:string baz:time nothing_but_love:int > main.go
+$ vi main.go
+$ go build main.go
 ```
 
 License
