@@ -15,9 +15,16 @@ import (
 
 const doNotEdit = "//-- DO_NOT_EDIT --\n"
 
+var gorp = flag.Bool("gorp", false, "Use gorp")
 var pkg = flag.String("pkg", "", "Package Name")
 var dbi = flag.String("dbi", "sqlite3", "Database Driver (sqlite3/pq/mysql)")
 var tag = flag.String("tag", "db", "Database Tag")
+
+var dialectMap = map[string]string{
+	"sqlite3": "SqliteDialect",
+	"pq":      "PostgresDialect",
+	"mysql":   "MySQLDialect",
+}
 
 var dbiMap = map[string]string{
 	"sqlite3": "github.com/mattn/go-sqlite3",
@@ -60,7 +67,8 @@ func main() {
 	}
 	name := flag.Arg(0)
 
-	code := "type " + CamelCase(name) + " struct {\n"
+	cname := CamelCase(name)
+	code := "type " + cname + " struct {\n"
 	code += "\tId int64 `" + *tag + ":\"id\"`\n"
 	hasTime := false
 	for _, arg := range flag.Args()[1:] {
@@ -90,6 +98,9 @@ func main() {
 		out += "\n\t\"database/sql\""
 		out += "\n\t\"log\""
 	}
+	if *gorp {
+		out += "\n\t\"github.com/coopernurse/gorp\""
+	}
 	if hasTime {
 		out += "\n\t\"time\""
 	}
@@ -100,13 +111,26 @@ func main() {
 	out += code
 
 	if hasMain {
-		out += "\n\nfunc main() {\n"
-		out += "\tconn, err := sql.Open(\"" + *dbi + "\", \"...\")\n"
-		out += "\tif err != nil {\n"
-		out += "\t\tlog.Fatal(err)\n"
-		out += "\t}\n"
-		out += "\tdefer conn.Close()\n"
-		out += "}\n"
+		out += fmt.Sprintf(`
+func main() {
+	conn, err := sql.Open("%s", "...")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer conn.Close()
+`, *dbi)
+		if *gorp {
+			out += fmt.Sprintf(`
+	dbmap := &gorp.DbMap{Db: conn, Dialect: gorp.%s{}}
+    dbmap.AddTableWithName(%s{}, "%ss").SetKeys(true, "id")
+    err = dbmap.CreateTablesIfNotExists()
+	if err != nil {
+		log.Fatal(err)
+	}
+`, dialectMap[*dbi], cname, name)
+		}
+		out += `}`
+
 	}
 
 	var buf bytes.Buffer
