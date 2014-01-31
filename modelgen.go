@@ -17,6 +17,7 @@ const doNotEdit = "//-- DO_NOT_EDIT --\n"
 
 var pkg = flag.String("pkg", "", "Package Name")
 var dbi = flag.String("dbi", "github.com/mattn/go-sqlite3", "Database Driver")
+var tag = flag.String("tag", "db", "Database Tag")
 
 var typeMap = map[string]string{
 	"int":     "int64",
@@ -50,14 +51,14 @@ func main() {
 	name := flag.Arg(0)
 
 	code := "type " + CamelCase(name) + " struct {\n"
-	code += "\tId int64 `db:\"id\"`\n"
+	code += "\tId int64 `" + *tag + ":\"id\"`\n"
 	hasTime := false
 	for _, arg := range flag.Args()[1:] {
 		token := strings.Split(arg, ":")
 		if len(token) == 2 {
 			if typ, ok := typeMap[token[1]]; ok {
 				field := strings.Title(CamelCase(token[0]))
-				code += "\t" + field + "\t" + typ + " `db:\"" + token[0] + "\"`\n"
+				code += "\t" + field + "\t" + typ + " `" + *tag + ":\"" + token[0] + "\"`\n"
 				if typ == "time.Time" {
 					hasTime = true
 				}
@@ -82,12 +83,12 @@ func main() {
 
 	var buf bytes.Buffer
 	fset := token.NewFileSet()
-	file, err := parser.ParseFile(fset, name + ".go", out, parser.ParseComments)
+	file, err := parser.ParseFile(fset, name+".go", out, parser.ParseComments)
 	if err != nil {
 		log.Fatal(err)
 	}
 	err = (&printer.Config{
-		Mode: printer.UseSpaces | printer.TabIndent,
+		Mode:     printer.UseSpaces | printer.TabIndent,
 		Tabwidth: 8,
 	}).Fprint(&buf, fset, file)
 	if err != nil {
