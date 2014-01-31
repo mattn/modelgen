@@ -31,7 +31,9 @@ type Foo struct {
 	Baz            time.Time `db:"baz"`
 	NothingButLove int64     `db:"nothing_but_love"`
 }
+```
 
+```
 $ modelgen -pkg=main -dbi=sqlite3 foo bar:string baz:time nothing_but_love:int
 package main
 
