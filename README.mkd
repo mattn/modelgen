@@ -15,14 +15,18 @@ This package can be installed with the go get command:
     
 Usage
 -----
+```
+$ modelgen foo bar:string baz:time nothing_but_love:int
+```
 
-    $ modelgen foo bar:string baz:time
-
-    type Foo struct {
-        Id  int64     `db:"id"`
-        Bar string    `db:"bar"`
-        Baz time.Time `db:"baz"`
-    }
+```go
+type Foo struct {
+	Id             int64     `db:"id"`
+	Bar            string    `db:"bar"`
+	Baz            time.Time `db:"baz"`
+	NothingButLove int64     `db:"nothing_but_love"`
+}
+```
 
 License
 -------
