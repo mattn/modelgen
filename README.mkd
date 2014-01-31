@@ -15,6 +15,14 @@ This package can be installed with the go get command:
     
 Usage
 -----
+
+```
+Usage of modelgen:
+  -dbi="github.com/mattn/go-sqlite3": Database Driver
+  -pkg="": Package Name
+  -tag="db": Database Tag
+```
+
 ```
 $ modelgen foo bar:string baz:time nothing_but_love:int
 ```
