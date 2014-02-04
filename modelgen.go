@@ -71,14 +71,28 @@ func main() {
 
 	cname := CamelCase(name)
 	code := "type " + cname + " struct {\n"
-	code += "\tId int64 `" + *tag + ":\"id\"`\n"
+	tags := ""
+	for i, t := range strings.Split(*tag, ",") {
+		if i > 0 {
+			tags += " "
+		}
+		tags += t + ":\"id\""
+	}
+	code += "\tId int64 `" + tags + "`\n"
 	hasTime := false
 	for _, arg := range flag.Args()[1:] {
 		token := strings.Split(arg, ":")
 		if len(token) == 2 {
 			if typ, ok := typeMap[token[1]]; ok {
 				field := strings.Title(CamelCase(token[0]))
-				code += "\t" + field + "\t" + typ + " `" + *tag + ":\"" + token[0] + "\"`\n"
+				tags = ""
+				for i, t := range strings.Split(*tag, ",") {
+					if i > 0 {
+						tags += " "
+					}
+					tags += t + ":\"" + token[0] + "\""
+				}
+				code += "\t" + field + "\t" + typ + " `" + tags + "`\n"
 				if typ == "time.Time" {
 					hasTime = true
 				}
