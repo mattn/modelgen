@@ -15,10 +15,10 @@ import (
 
 const doNotEdit = "//-- DO_NOT_EDIT --\n"
 
-var gorp = flag.Bool("gorp", false, "Use gorp")
-var pkg = flag.String("pkg", "", "Package Name")
-var dbi = flag.String("dbi", "sqlite3", "Database Driver (sqlite3/pq/mysql)")
-var tag = flag.String("tag", "db", "Database Tag")
+var gorp = flag.Bool("gorp", false, "use gorp")
+var pkg = flag.String("pkg", "", "package Name")
+var dbi = flag.String("dbi", "sqlite3", "database driver (sqlite3/pq/mysql)")
+var tag = flag.String("tag", "db", "tag name")
 
 var dialectMap = map[string]string{
 	"sqlite3": "SqliteDialect",
@@ -43,6 +43,8 @@ var typeMap = map[string]string{
 	"text":    "string",
 	"date":    "time.Time",
 	"time":    "time.Time",
+	"bool":    "bool",
+	"boolean": "bool",
 }
 
 var re = regexp.MustCompile("[0-9A-Za-z]+")
