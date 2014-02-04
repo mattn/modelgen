@@ -108,6 +108,24 @@ func main() {
 }
 ```
 
+Tips
+----
+
+This is easy to generate json mapped struct.
+
+```
+$ modelgen -tag db,json blog title:string body:string  
+```
+
+```
+type Blog struct {
+	Id    int64  `db:"id" json:"id"`
+	Title string `db:"title" json:"title"`
+	Body  string `db:"body" json:"body"`
+}
+```
+
+
 License
 -------
 
